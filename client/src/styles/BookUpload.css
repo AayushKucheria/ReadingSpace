@@ -1,0 +1,93 @@
+.book-upload {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background-color: var(--card-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.upload-instructions {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md);
+  background-color: rgba(52, 152, 219, 0.1);
+  border-left: 4px solid var(--primary-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.upload-instructions h3 {
+  font-size: 18px;
+  margin-bottom: var(--spacing-sm);
+}
+
+.upload-instructions ol {
+  padding-left: var(--spacing-xl);
+}
+
+.upload-instructions li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.upload-area {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-xl);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+.upload-area input[type="file"] {
+  display: none;
+}
+
+.upload-area label {
+  cursor: pointer;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 16px;
+}
+
+.error-message {
+  color: var(--accent-color);
+  margin: var(--spacing-md) 0;
+  font-size: 14px;
+}
+
+.progress-container {
+  margin: var(--spacing-md) 0;
+  background-color: var(--border-color);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  height: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-light);
+  margin-top: var(--spacing-xs);
+}
+
+.upload-button {
+  width: 100%;
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  font-size: 16px;
+  font-weight: 600;
+} 

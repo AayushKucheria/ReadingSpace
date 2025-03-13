@@ -1,0 +1,79 @@
+.book-item {
+  background-color: white;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  margin-bottom: var(--spacing-md);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.book-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+.book-item-content {
+  padding: var(--spacing-md);
+}
+
+.book-item .book-title {
+  font-size: 18px;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-dark);
+}
+
+.book-item .book-author {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.book-item .book-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.book-item .stars {
+  color: #f39c12;
+  letter-spacing: -2px;
+  font-size: 14px;
+}
+
+.book-item .rating-value {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.book-item .match-container {
+  margin-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--spacing-sm);
+}
+
+.book-item .match-score {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.book-item .score-label {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.book-item .score-value {
+  font-weight: bold;
+  color: var(--secondary-color);
+  font-size: 14px;
+}
+
+.book-item .match-reason {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin: 0;
+} 
