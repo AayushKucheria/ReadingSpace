@@ -3,7 +3,7 @@ import { BookItem } from './BookItem';
 import '../styles/SearchResults.css';
 
 export const SearchResults = ({ results, type, onSelectBook, query = '' }) => {
-  const [displayCount, setDisplayCount] = useState(4); // Initially show 4 results
+  const [displayCount, setDisplayCount] = useState(3); // Initially show 3 results
   
   // Handle case where results is a single book (for similar search)
   const isDetailView = type === 'similar' && !Array.isArray(results);
@@ -37,7 +37,7 @@ export const SearchResults = ({ results, type, onSelectBook, query = '' }) => {
   };
   
   const handleLoadMore = () => {
-    setDisplayCount(prev => prev + 4); // Load 4 more books
+    setDisplayCount(prev => prev + 2); // Load 2 more books
   };
   
   return (
@@ -51,7 +51,7 @@ export const SearchResults = ({ results, type, onSelectBook, query = '' }) => {
             <BookItem
               key={book.id}
               book={book}
-              onClick={() => onSelectBook(book)}
+              onClick={onSelectBook}
               query={effectiveQuery}
             />
           ))

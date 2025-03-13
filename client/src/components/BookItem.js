@@ -36,11 +36,79 @@ export const BookItem = ({ book, onClick, query }) => {
     }
   };
 
+  // Handle external link clicks without triggering the parent onClick
+  const handleExternalLinkClick = (e, url) => {
+    e.stopPropagation(); // Prevent the parent onClick from firing
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  // Handle find similar button click
+  const handleFindSimilar = (e) => {
+    e.stopPropagation(); // Prevent the parent click from firing
+    if (onClick) {
+      onClick(book);
+    }
+  };
+
+  // Create link URLs based on book data
+  const getGoodreadsUrl = () => {
+    // Clean ISBN format: remove equals sign prefix and any quotes
+    const cleanIsbn = (isbn) => {
+      if (!isbn) return null;
+      return isbn.toString().replace(/^=/, '').replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1').trim();
+    };
+
+    const isbn = cleanIsbn(book.isbn);
+    const isbn13 = cleanIsbn(book.isbn13);
+
+    if (isbn) {
+      return `https://www.goodreads.com/book/isbn/${isbn}`;
+    } else if (isbn13) {
+      return `https://www.goodreads.com/book/isbn/${isbn13}`;
+    }
+    // Fallback to search by title and author
+    const searchQuery = encodeURIComponent(`${book.title} ${book.author}`);
+    return `https://www.goodreads.com/search?q=${searchQuery}`;
+  };
+
+  const getAmazonUrl = () => {
+    // Clean ISBN format: remove equals sign prefix and any quotes
+    const cleanIsbn = (isbn) => {
+      if (!isbn) return null;
+      return isbn.toString().replace(/^=/, '').replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1').trim();
+    };
+
+    const isbn = cleanIsbn(book.isbn);
+    const isbn13 = cleanIsbn(book.isbn13);
+
+    // For books, the ASIN is often the same as the ISBN-10
+    if (isbn) {
+      // Direct to product page if possible
+      return `https://www.amazon.com/dp/${isbn}`;
+    } else if (isbn13) {
+      // ISBN-13 doesn't work as an ASIN, so use search
+      return `https://www.amazon.com/s?k=${isbn13}`;
+    }
+    // Fallback to search by title and author
+    const searchQuery = encodeURIComponent(`${book.title} ${book.author} book`);
+    return `https://www.amazon.com/s?k=${searchQuery}`;
+  };
+
   return (
-    <div className="book-item" onClick={onClick}>
+    <div className="book-item">
       <div className="book-item-content">
-        <h3 className="book-title">{book.title}</h3>
-        <p className="book-author">by {book.author}</p>
+        <div className="book-header">
+          <div className="book-main-info">
+            <h3 className="book-title">{book.title}</h3>
+            <p className="book-author">by {book.author}</p>
+          </div>
+          
+          {book.similarity && (
+            <div className="match-badge">
+              <span className="match-percentage">{Math.round(book.similarity * 100)}%</span>
+            </div>
+          )}
+        </div>
         
         {book.average_rating && (
           <div className="book-rating">
@@ -57,16 +125,40 @@ export const BookItem = ({ book, onClick, query }) => {
         
         {book.similarity && (
           <div className="match-container">
-            <div className="match-score">
-              <span className="score-label">Match:</span>
-              <span className="score-value">{Math.round(book.similarity * 100)}%</span>
-            </div>
-            
             <p className="match-reason">
               {query ? generateReason() : "This book matches your search criteria."}
             </p>
           </div>
         )}
+
+        <div className="book-actions">
+          {onClick && (
+            <button 
+              className="action-button find-similar-button"
+              onClick={handleFindSimilar}
+              title="Find similar books"
+            >
+              Find Similar
+            </button>
+          )}
+          
+          <div className="book-external-links">
+            <button 
+              className="external-link goodreads-link"
+              onClick={(e) => handleExternalLinkClick(e, getGoodreadsUrl())}
+              title="View on Goodreads"
+            >
+              Goodreads
+            </button>
+            <button 
+              className="external-link amazon-link"
+              onClick={(e) => handleExternalLinkClick(e, getAmazonUrl())}
+              title="View on Amazon"
+            >
+              Amazon
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

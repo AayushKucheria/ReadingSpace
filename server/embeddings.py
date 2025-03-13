@@ -8,7 +8,7 @@ import pandas as pd
 class EmbeddingManager:
     def __init__(self):
         # Load efficient, high-quality embedding model
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.model = SentenceTransformer('all-MiniLM-L12-v2')
         self.books = []
         self.embeddings = []
         self.book_ids_map = {}  # Maps book IDs to indices
@@ -82,12 +82,25 @@ class EmbeddingManager:
                 shelves = row['Bookshelves']
                 embedding_text += f" Bookshelves: {shelves}."
             
-            # Store book data
+            # Clean ISBN values by removing = prefix and quotes
+            def clean_isbn(isbn_val):
+                if pd.isna(isbn_val):
+                    return None
+                # Convert to string (in case it's a number), remove = prefix and quotes
+                isbn_str = str(isbn_val).replace("=", "").strip()
+                # Remove quotes if present
+                if (isbn_str.startswith('"') and isbn_str.endswith('"')) or \
+                   (isbn_str.startswith("'") and isbn_str.endswith("'")):
+                    isbn_str = isbn_str[1:-1]
+                return isbn_str
+            
+            # Store book data with cleaned ISBNs
             book_data = {
                 'id': book_id,
                 'title': title,
                 'author': author,
-                'isbn': row['ISBN'] if not pd.isna(row['ISBN']) else None
+                'isbn': clean_isbn(row['ISBN']) if 'ISBN' in row and not pd.isna(row['ISBN']) else None,
+                'isbn13': clean_isbn(row['ISBN13']) if 'ISBN13' in row and not pd.isna(row['ISBN13']) else None
             }
             
             # Add optional fields if available

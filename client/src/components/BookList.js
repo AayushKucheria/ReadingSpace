@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookCard } from './BookCard';
+import { BookItem } from './BookItem';
 import '../styles/BookList.css';
 
 export const BookList = ({ books, onSelectBook }) => {
@@ -67,10 +67,10 @@ export const BookList = ({ books, onSelectBook }) => {
       <div className="books-container">
         {currentBooks.length > 0 ? (
           currentBooks.map(book => (
-            <BookCard 
+            <BookItem
               key={book.id} 
               book={book} 
-              onClick={() => onSelectBook(book)}
+              onClick={onSelectBook}
             />
           ))
         ) : (

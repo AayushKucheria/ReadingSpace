@@ -4,7 +4,6 @@
   box-shadow: 0 2px 8px var(--shadow-color);
   margin-bottom: var(--spacing-md);
   transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
   overflow: hidden;
 }
 
@@ -17,6 +16,18 @@
   padding: var(--spacing-md);
 }
 
+/* New header layout */
+.book-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-sm);
+}
+
+.book-main-info {
+  flex: 1;
+}
+
 .book-item .book-title {
   font-size: 18px;
   margin-bottom: var(--spacing-xs);
@@ -27,6 +38,25 @@
   font-size: 14px;
   color: var(--text-light);
   margin-bottom: var(--spacing-sm);
+}
+
+/* Enhanced match badge */
+.match-badge {
+  background-color: var(--secondary-color);
+  color: white;
+  border-radius: 24px;
+  padding: 4px 10px;
+  margin-left: var(--spacing-sm);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  min-width: 48px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.match-percentage {
+  font-size: 16px;
 }
 
 .book-item .book-rating {
@@ -53,27 +83,90 @@
   padding-top: var(--spacing-sm);
 }
 
-.book-item .match-score {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-xs);
-}
-
-.book-item .score-label {
-  color: var(--text-light);
-  font-size: 14px;
-}
-
-.book-item .score-value {
-  font-weight: bold;
-  color: var(--secondary-color);
-  font-size: 14px;
-}
-
 .book-item .match-reason {
   color: var(--text-muted);
   font-size: 14px;
   font-style: italic;
   margin: 0;
+}
+
+/* Book actions section (contains find similar and external links) */
+.book-actions {
+  margin-top: var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Find similar button */
+.action-button {
+  padding: 8px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+}
+
+.action-button:active {
+  transform: translateY(1px);
+}
+
+.find-similar-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.find-similar-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+/* External link buttons - smaller and less prominent */
+.book-external-links {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: flex-end;
+}
+
+.external-link {
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0.85;
+}
+
+.external-link:hover {
+  transform: translateY(-1px);
+  opacity: 1;
+}
+
+.external-link:active {
+  transform: translateY(1px);
+}
+
+.goodreads-link {
+  background-color: #553b08;
+  color: white;
+}
+
+.goodreads-link:hover {
+  background-color: #372609;
+}
+
+.amazon-link {
+  background-color: #ff9900;
+  color: #232f3e;
+}
+
+.amazon-link:hover {
+  background-color: #e88a00;
 } 
