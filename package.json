@@ -1,0 +1,36 @@
+{
+  "name": "booksspace",
+  "version": "1.0.0",
+  "description": "A semantic search application for book discovery",
+  "private": true,
+  "scripts": {
+    "start:client": "cd client && npm start",
+    "start:server": "cd server && python app.py",
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && pip install -r requirements.txt",
+    "install:all": "npm run install:client && npm run install:server",
+    "build:client": "cd client && npm run build",
+    "dev": "concurrently \"npm run start:server\" \"npm run start:client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_USERNAME/BooksSpace.git"
+  },
+  "keywords": [
+    "semantic-search",
+    "book-recommendations",
+    "nlp",
+    "embeddings",
+    "react",
+    "flask"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/BooksSpace/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/BooksSpace#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+} 

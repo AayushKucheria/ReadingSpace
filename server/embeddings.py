@@ -8,7 +8,7 @@ import pandas as pd
 class EmbeddingManager:
     def __init__(self):
         # Load efficient, high-quality embedding model
-        self.model = SentenceTransformer('all-MiniLM-L12-v2')
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
         self.books = []
         self.embeddings = []
         self.book_ids_map = {}  # Maps book IDs to indices
