@@ -7,11 +7,28 @@ import requests
 from io import BytesIO
 from embeddings import EmbeddingManager
 
-app = Flask(__name__)
+# Get the port from environment variable
+port = int(os.environ.get("PORT", 5000))
+static_folder = os.environ.get("STATIC_FOLDER", None)
+
+# Initialize Flask app
+app = Flask(__name__, static_folder=static_folder, static_url_path='/')
 CORS(app)
 
 # Initialize embedding manager
 embedding_manager = EmbeddingManager()
+
+# Serve static files (React app)
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
+@app.route('/<path:path>')
+def static_proxy(path):
+    # Send any non-API request to the React app
+    if path.startswith('api/'):
+        return jsonify({'error': 'Not found'}), 404
+    return app.send_static_file(path)
 
 @app.route('/api/upload', methods=['POST'])
 def upload_library():
@@ -146,4 +163,4 @@ def cover_proxy():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    app.run(debug=False, host='0.0.0.0', port=port) 
