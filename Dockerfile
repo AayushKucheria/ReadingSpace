@@ -13,8 +13,8 @@ COPY client/ ./
 # Build client
 RUN npm run build
 
-# Python stage for the backend
-FROM python:3.9-slim
+# Python stage for the backend - using latest stable version
+FROM python:latest
 
 # Set working directory
 WORKDIR /app
