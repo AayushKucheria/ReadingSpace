@@ -1,6 +1,6 @@
-# Contributing to BooksSpace
+# Contributing to ReadingSpace
 
-Thank you for considering contributing to BooksSpace! This document outlines the guidelines and workflows for contributing to this project.
+Thank you for considering contributing to ReadingSpace! This document outlines the guidelines and workflows for contributing to this project.
 
 ## Code of Conduct
 
@@ -31,56 +31,38 @@ Please be respectful and considerate of others when contributing. We aim to fost
 
 ## Development Setup
 
-### Backend (Python/Flask)
-
-1. Set up a virtual environment
-   ```bash
-   cd server
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-2. Run the Flask server
-   ```bash
-   python app.py
-   ```
-
-### Frontend (React)
+ReadingSpace is a single Next.js application. To get started:
 
 1. Install dependencies
    ```bash
-   cd client
    npm install
    ```
 
-2. Start the development server
+2. Copy the environment template and add your OpenAI key
    ```bash
-   npm start
+   cp .env.example .env.local
    ```
+
+3. Start the development server
+   ```bash
+   npm run dev
+   ```
+
+The app will be available at http://localhost:3000.
 
 ## Coding Conventions
 
-### Python (Backend)
-
-- Follow PEP 8 style guidelines
-- Use meaningful variable and function names
-- Include docstrings for functions and classes
-- Use type hints where appropriate
-
-### JavaScript/React (Frontend)
+### JavaScript/React
 
 - Use functional components and hooks
-- Use meaningful component and variable names
+- Prefer small, composable components
 - Add comments for complex logic
-- Format code with Prettier
+- Follow the default `eslint-config-next` guidelines
 
 ## Testing
 
-- Write tests for new features
-- Ensure existing tests pass before submitting pull requests
-- For backend tests, use Python's unittest framework
-- For frontend tests, use React Testing Library
+- Write tests for new features (unit or integration)
+- Ensure existing tests pass before submitting pull requests (`npm test`, `npm run lint`)
 
 ## Documentation
 

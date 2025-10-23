@@ -1,16 +1,15 @@
 {
-  "name": "booksspace",
+  "name": "readingspace",
   "version": "1.0.0",
   "description": "A semantic search application for book discovery",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start:client": "cd client && npm start",
-    "start:server": "cd server && python app.py",
-    "install:client": "cd client && npm install",
-    "install:server": "cd server && pip install -r requirements.txt",
-    "install:all": "npm run install:client && npm run install:server",
-    "build:client": "cd client && npm run build",
-    "dev": "concurrently \"npm run start:server\" \"npm run start:client\""
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "node --test"
   },
   "repository": {
     "type": "git",
@@ -30,7 +29,15 @@
     "url": "https://github.com/YOUR_USERNAME/BooksSpace/issues"
   },
   "homepage": "https://github.com/YOUR_USERNAME/BooksSpace#readme",
+  "dependencies": {
+    "idb-keyval": "^6.2.1",
+    "next": "^14.2.4",
+    "openai": "^4.52.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.4"
   }
-} 
+}

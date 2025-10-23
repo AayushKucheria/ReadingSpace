@@ -1,15 +1,18 @@
-# BooksSpace
+# ReadingSpace
 
 ![license](https://img.shields.io/badge/license-MIT-blue.svg)
 
-A semantic search application for book discovery. BooksSpace allows you to explore your personal library using natural language - find books matching concepts, themes, or emotions, even if they don't contain those exact words.
+A semantic search application for book discovery. ReadingSpace lets you explore your personal library using natural language—find books matching concepts, themes, or emotions, even if the words never appear in the description.
 
 ## Features
 
-- **📚 Personal Library Management**: Upload your Goodreads CSV export to import your book collection
+- **📚 Library Sync**: Import your Bookwyrm shelves (to-read, reading, read, custom) with a single click
 - **🔍 Semantic Search**: Describe any concept, theme, or emotion to find matching books
 - **🔄 Similar Book Discovery**: Easily find books similar to ones you already enjoy
-- **⚡ Embedding-Powered**: Utilizes state-of-the-art text embeddings for understanding book contexts
+- **⚡ Embedding-Powered**: Uses OpenAI embedding models for fast semantic similarity scoring
+- **💾 Local-first data**: Books & embeddings are stored in your browser so you stay in control of your library
+- **📝 Activity-aware context**: Sync metadata, personal reviews, and ratings persist locally for richer recommendations next session
+- **🎯 Single strong suggestion mode**: Let the app shortlist a top match, get a concise LLM summary, and reroll with feedback when you want another idea
 
 ## Demo
 
@@ -17,81 +20,67 @@ A semantic search application for book discovery. BooksSpace allows you to explo
 
 ## Technologies Used
 
-- **Frontend**: React.js
-- **Backend**: Python (Flask)
-- **NLP**: Sentence-transformers for text embeddings
-- **Data Processing**: NumPy, Pandas
+- **Framework**: Next.js (App Router)
+- **UI**: React 18 with vanilla CSS
+- **API**: Serverless route running on Vercel
+- **Embeddings**: OpenAI `text-embedding-3-small` (configurable)
+- **Storage**: Browser IndexedDB for local persistence
 
 ## Prerequisites
 
-- Python 3.8+ for the backend
-- Node.js (v16 or higher) for the frontend
-- npm (v7 or higher)
-- A Goodreads library export (CSV format)
+- Node.js 18.18+ or 20+
+- npm 9+
+- An OpenAI API key with access to the embeddings endpoint
+- A Bookwyrm account with public shelves (instance domain + username)
 
-## Installation and Setup
+## Quick Start
 
-### Backend Setup
-
-1. Clone the repository
-```bash
-git clone https://github.com/YOUR_USERNAME/BooksSpace.git
-cd BooksSpace
-```
-
-2. Create and activate a virtual environment
-```bash
-cd server
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-4. Run the Flask server
-```bash
-python app.py
-```
-The server will start on http://localhost:5000
-
-### Frontend Setup
-
-1. Navigate to the client directory
-```bash
-cd client
-```
-
-2. Install dependencies
 ```bash
 npm install
+cp .env.example .env.local  # Add your OpenAI API key
+npm run dev
 ```
 
-3. Start the development server
-```bash
-npm start
-```
-The application will open in your browser at http://localhost:3000
+Run `npm test` to execute the importer integration tests that mock Bookwyrm responses.
+
+Visit http://localhost:3000, sync your Bookwyrm shelves, and start searching.
 
 ## Usage
 
-1. **Upload Your Library**: Click on "Upload Library" and select your Goodreads CSV export
+1. **Sync Your Library**: Enter your Bookwyrm instance + username, choose shelves, and click "Sync Library"
 2. **Explore Your Books**: Browse your complete book collection
 3. **Semantic Search**: Use natural language to search for books by concepts, themes, or emotions
 4. **Discover Similar Books**: Click on any book to find similar titles in your collection
 
 ## How It Works
 
-BooksSpace uses embedding-based semantic search to find similarities between book descriptions and your search queries:
+ReadingSpace keeps the entire experience inside your browser while calling a single serverless function for embeddings:
 
-1. Each book's metadata (title, author, shelves) is converted to an embedding vector
-2. Your search query is also converted to an embedding vector 
-3. The system finds books whose embeddings are closest to your query's embedding
-4. Results are ranked by similarity score
+1. The client requests `/api/bookwyrm`, which fetches and normalizes your selected public shelves through Bookwyrm's ActivityPub endpoints.
+2. The response includes clean metadata plus text snippets that describe each edition.
+3. Those snippets are batched to `/api/embed`, which forwards to OpenAI for embeddings.
+4. Embeddings and book data are stored in IndexedDB (browser storage) so refreshes keep your library.
 
-This approach enables finding thematically similar books even when specific keywords aren't present.
+This keeps the deployment lightweight—no stateful backend, no database, and nothing to maintain outside Vercel.
+
+## Environment Variables
+
+Create `.env.local` with:
+
+```
+OPENAI_API_KEY=sk-...
+# Optional overrides
+# OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+# EMBED_BATCH_SIZE=32
+# OPENAI_RECOMMENDATION_MODEL=gpt-4o-mini
+```
+
+## Deployment (Vercel)
+
+1. Push the repo to GitHub/GitLab.
+2. Create a new Vercel project pointing at the repo.
+3. Add `OPENAI_API_KEY` (and any optional overrides) in the Vercel dashboard.
+4. Deploy — the default build command is `npm run build`.
 
 ## Contributing
 
@@ -105,6 +94,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- [Sentence-Transformers](https://www.sbert.net/) for the embedding models
-- [React](https://reactjs.org/) and [Flask](https://flask.palletsprojects.com/) for the application framework
-- All contributors and open source projects that made this possible 
+- [Next.js](https://nextjs.org/) for the full-stack framework
+- [OpenAI](https://openai.com/) for the embeddings API
+- [idb-keyval](https://github.com/jakearchibald/idb-keyval) for simple IndexedDB persistence
