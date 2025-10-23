@@ -3,10 +3,12 @@
 import { useCallback, useState } from 'react';
 
 const EXAMPLE_PROMPTS = [
-  'I want something tender yet unsettling that wrestles with memory.',
-  'Give me a book to reset my attention and feel grounded again.',
-  'What should I read to stay curious about the natural world?',
-  'I need a hopeful story that still acknowledges hard realities.'
+  'Rain needles the window while the kettle hums; I need a story that feels like quiet thunder to settle me.',
+  'The museum closed hours ago, yet the smell of varnish and velvet still clings to me—I want to wander that hush on the page.',
+  'City lights smear across the late-night train and I am a ghost between stations, craving prose that understands that in-between ache.',
+  'I keep replaying a tender memory that tilts toward unease; recommend something that wrestles with softness and dread in equal measure.',
+  'Point me to a book that keeps me curious about mossy trails, tidal pools, and every feral wonder in the natural world.',
+  'My shelves need a voice that will let me stay curious without losing the sense of play that got me reading in the first place.'
 ];
 
 export function Search({ onSearch, searching, centered = true }) {
@@ -96,7 +98,7 @@ export function Search({ onSearch, searching, centered = true }) {
       </div>
 
       <div className="context-examples">
-        <p className="examples-label">Need a spark?</p>
+        <p className="examples-label">Borrow a snippet of the kind of note you might leave for the system.</p>
         <div className="examples-list">
           {EXAMPLE_PROMPTS.map((example) => (
             <button
