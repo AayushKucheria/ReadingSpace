@@ -30,7 +30,7 @@ export function SearchResults({
       <div className="search-results single-suggestion">
         <div className="concept-header">
           <h2>Spotlight Suggestion</h2>
-          <p>Based on your concept: &ldquo;{state.query}&rdquo;</p>
+          <p>Here’s what surfaced first.</p>
         </div>
 
         {suggestion ? (
