@@ -3,12 +3,12 @@
 import { useCallback, useState } from 'react';
 
 const EXAMPLE_PROMPTS = [
-  'Describe the rain-soaked quiet you are sitting in and what you hope it will teach you.',
-  'Sketch the feeling of walking through a museum at closing time, lights dim and echoes soft.',
-  'Trace the emotional weather of a late-night subway ride with strangers you will never meet again.',
-  'Write a few lines about the kind of solace you want the wind through the trees to whisper.',
-  'I want something tender yet unsettling that wrestles with memory.',
-  'What should I read to stay curious about the natural world?'
+  'Rain needles the window while the kettle hums; I need a story that feels like quiet thunder to settle me.',
+  'The museum closed hours ago, yet the smell of varnish and velvet still clings to me—I want to wander that hush on the page.',
+  'City lights smear across the late-night train and I am a ghost between stations, craving prose that understands that in-between ache.',
+  'I keep replaying a tender memory that tilts toward unease; recommend something that wrestles with softness and dread in equal measure.',
+  'Point me to a book that keeps me curious about mossy trails, tidal pools, and every feral wonder in the natural world.',
+  'My shelves need a voice that will let me stay curious without losing the sense of play that got me reading in the first place.'
 ];
 
 export function Search({ onSearch, searching }) {
@@ -91,7 +91,7 @@ export function Search({ onSearch, searching }) {
       </div>
 
       <div className="context-examples">
-        <p className="examples-label">Need a spark? Try a mood-rich free-write or a book-seeking prompt.</p>
+        <p className="examples-label">Borrow a snippet of the kind of note you might leave for the system.</p>
         <div className="examples-list">
           {EXAMPLE_PROMPTS.map((example) => (
             <button
