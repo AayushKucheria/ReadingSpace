@@ -21,7 +21,7 @@ function slugify(value) {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-async function generateEmbeddings(inputs, onProgress) {
+async function generateEmbeddings(inputs, onProgress, apiKey) {
   if (!inputs || inputs.length === 0) {
     if (onProgress) {
       onProgress(100);
@@ -29,12 +29,16 @@ async function generateEmbeddings(inputs, onProgress) {
     return [];
   }
 
+  if (!apiKey) {
+    throw new Error('An OpenAI API key is required to generate embeddings.');
+  }
+
   const embeddings = [];
 
   for (let i = 0; i < inputs.length; i += EMBEDDING_BATCH_SIZE) {
     const chunk = inputs.slice(i, i + EMBEDDING_BATCH_SIZE);
     // eslint-disable-next-line no-await-in-loop
-    const response = await fetchEmbeddings(chunk);
+    const response = await fetchEmbeddings(chunk, apiKey);
     embeddings.push(...response);
 
     if (onProgress) {
@@ -131,7 +135,12 @@ async function hashTextSha256(text) {
   throw new Error('Secure hashing is not supported in this environment.');
 }
 
-export function LibrarySync({ onLibraryImported, existingBooks = [], syncState = null }) {
+export function LibrarySync({
+  onLibraryImported,
+  existingBooks = [],
+  syncState = null,
+  ensureApiKey
+}) {
   const [instanceDomain, setInstanceDomain] = useState(DEFAULT_INSTANCE);
   const [username, setUsername] = useState('');
   const [selectedShelves, setSelectedShelves] = useState(
@@ -327,6 +336,21 @@ export function LibrarySync({ onLibraryImported, existingBooks = [], syncState =
       return;
     }
 
+    let apiKey;
+    try {
+      apiKey = ensureApiKey ? ensureApiKey() : null;
+    } catch (keyError) {
+      setError(
+        keyError?.message ?? 'Add your OpenAI API key in Settings before syncing your library.'
+      );
+      return;
+    }
+
+    if (!apiKey) {
+      setError('Add your OpenAI API key in Settings before syncing your library.');
+      return;
+    }
+
     setSyncing(true);
     setError(null);
     setProgress(5);
@@ -456,7 +480,11 @@ export function LibrarySync({ onLibraryImported, existingBooks = [], syncState =
 
       if (embeddingTasks.length > 0) {
         const embeddingInputs = embeddingTasks.map((task) => task.input);
-        const embeddings = await generateEmbeddings(embeddingInputs, updateEmbeddingProgress);
+        const embeddings = await generateEmbeddings(
+          embeddingInputs,
+          updateEmbeddingProgress,
+          apiKey
+        );
         embeddings.forEach((embedding, embedIndex) => {
           embeddingTasks[embedIndex].assign(embedding);
         });

@@ -37,20 +37,20 @@ A semantic search application for book discovery. ReadingSpace lets you explore 
 
 ```bash
 npm install
-cp .env.example .env.local  # Add your OpenAI API key
 npm run dev
 ```
 
 Run `npm test` to execute the importer integration tests that mock Bookwyrm responses.
 
-Visit http://localhost:3000, sync your Bookwyrm shelves, and start searching.
+Visit http://localhost:3000, save your OpenAI API key in the OpenAI access panel, sync your Bookwyrm shelves, and start searching.
 
 ## Usage
 
-1. **Sync Your Library**: Enter your Bookwyrm instance + username, choose shelves, and click "Sync Library"
-2. **Explore Your Books**: Browse your complete book collection
-3. **Semantic Search**: Use natural language to search for books by concepts, themes, or emotions
-4. **Discover Similar Books**: Click on any book to find similar titles in your collection
+1. **Add Your OpenAI Key**: Store your personal OpenAI API key in the OpenAI access panel (saved locally in your browser)
+2. **Sync Your Library**: Enter your Bookwyrm instance + username, choose shelves, and click "Sync Library"
+3. **Explore Your Books**: Browse your complete book collection
+4. **Semantic Search**: Use natural language to search for books by concepts, themes, or emotions
+5. **Discover Similar Books**: Click on any book to find similar titles in your collection
 
 ## How It Works
 
@@ -65,22 +65,21 @@ This keeps the deployment lightweight—no stateful backend, no database, and no
 
 ## Environment Variables
 
-Create `.env.local` with:
+Runtime settings are optional. Create `.env.local` only if you want to override defaults:
 
 ```
-OPENAI_API_KEY=sk-...
-# Optional overrides
 # OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 # EMBED_BATCH_SIZE=32
 # OPENAI_RECOMMENDATION_MODEL=gpt-4o-mini
 ```
 
+The OpenAI API key is stored securely in your browser via the **OpenAI access** panel on the home page and is sent with each embedding or recommendation request.
+
 ## Deployment (Vercel)
 
 1. Push the repo to GitHub/GitLab.
 2. Create a new Vercel project pointing at the repo.
-3. Add `OPENAI_API_KEY` (and any optional overrides) in the Vercel dashboard.
-4. Deploy — the default build command is `npm run build`.
+3. Deploy — the default build command is `npm run build`.
 
 ## Contributing
 

@@ -3,12 +3,12 @@ import OpenAI from 'openai';
 
 const MODEL = process.env.OPENAI_RECOMMENDATION_MODEL ?? 'gpt-4o-mini';
 
-function getClient() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured. Add it to your environment variables.');
+function getClient(apiKey) {
+  const sanitized = typeof apiKey === 'string' ? apiKey.trim() : '';
+  if (!sanitized) {
+    throw new Error('OpenAI API key is required.');
   }
-  return new OpenAI({ apiKey });
+  return new OpenAI({ apiKey: sanitized });
 }
 
 function buildBookContext(book) {
@@ -78,6 +78,7 @@ export async function POST(request) {
 
   const query = typeof payload?.query === 'string' ? payload.query.trim() : '';
   const book = payload?.book;
+  const apiKey = typeof payload?.apiKey === 'string' ? payload.apiKey.trim() : '';
 
   if (!query) {
     return NextResponse.json({ error: 'query is required.' }, { status: 400 });
@@ -87,11 +88,15 @@ export async function POST(request) {
     return NextResponse.json({ error: 'book is required.' }, { status: 400 });
   }
 
+  if (!apiKey) {
+    return NextResponse.json({ error: 'apiKey is required.' }, { status: 400 });
+  }
+
   let client;
   try {
-    client = getClient();
+    client = getClient(apiKey);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
   try {

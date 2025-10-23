@@ -9,7 +9,7 @@ const EXAMPLE_PROMPTS = [
   'I need a hopeful story that still acknowledges hard realities.'
 ];
 
-export function Search({ onSearch, searching }) {
+export function Search({ onSearch, searching, ensureApiKey }) {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState(null);
 
@@ -24,6 +24,17 @@ export function Search({ onSearch, searching }) {
         return;
       }
 
+      if (ensureApiKey) {
+        try {
+          ensureApiKey();
+        } catch (keyError) {
+          setError(
+            keyError?.message ?? 'Add your OpenAI API key in Settings before searching.'
+          );
+          return;
+        }
+      }
+
       setError(null);
 
       try {
@@ -36,7 +47,7 @@ export function Search({ onSearch, searching }) {
         setError(searchError.message ?? 'Something went wrong. Try again.');
       }
     },
-    [onSearch, prompt]
+    [ensureApiKey, onSearch, prompt]
   );
 
   const applyExample = useCallback((example) => {
