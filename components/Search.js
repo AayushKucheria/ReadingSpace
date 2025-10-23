@@ -9,7 +9,7 @@ const EXAMPLE_PROMPTS = [
   'I need a hopeful story that still acknowledges hard realities.'
 ];
 
-export function Search({ onSearch, searching }) {
+export function Search({ onSearch, searching, centered = true }) {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState(null);
 
@@ -44,8 +44,15 @@ export function Search({ onSearch, searching }) {
     setError(null);
   }, []);
 
+  const sectionClassName = [
+    'context-search',
+    centered ? 'context-search--centered' : null
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <section className="context-search">
+    <section className={sectionClassName}>
       <div className="context-shell">
         <header className="context-header">
           <p className="eyebrow">Context-first</p>

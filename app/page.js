@@ -260,15 +260,19 @@ export default function HomePage() {
         {!initializing && activeView === 'books' && canSearch && <BookList books={books} />}
 
         {!initializing && activeView === 'search' && (
-          <>
-            <Search onSearch={handleConceptSearch} searching={searching} />
+          <div className="search-layout">
+            <Search
+              onSearch={handleConceptSearch}
+              searching={searching}
+              centered={false}
+            />
             <SearchResults
               state={searchState}
               onSuggestionFeedback={handleSuggestionFeedback}
               onRequestAnother={handleSuggestionReroll}
               searching={searching}
             />
-          </>
+          </div>
         )}
       </main>
     </div>
