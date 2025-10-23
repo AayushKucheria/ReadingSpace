@@ -16,7 +16,6 @@ import {
   saveSyncState
 } from '@/lib/storage';
 
-const SIMILAR_BOOK_LIMIT = 10;
 const CONCEPT_RESULTS_LIMIT = 20;
 const SINGLE_SUGGESTION_POOL_SIZE = 5;
 
@@ -57,71 +56,6 @@ export default function HomePage() {
   }, []);
 
   const canSearch = useMemo(() => books.length > 0, [books.length]);
-  const filterOptions = useMemo(() => {
-    if (books.length === 0) {
-      return { shelves: [], subjects: [] };
-    }
-
-    const shelfMap = new Map();
-    const subjectCount = new Map();
-
-    books.forEach((book) => {
-      if (book?.shelf) {
-        shelfMap.set(book.shelf, book.shelfLabel ?? book.shelf);
-      }
-
-      if (Array.isArray(book?.subjects)) {
-        book.subjects.forEach((subject) => {
-          if (!subject) {
-            return;
-          }
-          subjectCount.set(subject, (subjectCount.get(subject) ?? 0) + 1);
-        });
-      }
-    });
-
-    const shelves = Array.from(shelfMap.entries()).map(([slug, label]) => ({
-      slug,
-      label
-    }));
-
-    const subjects = Array.from(subjectCount.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 12)
-      .map(([subject]) => subject);
-
-    return { shelves, subjects };
-  }, [books]);
-
-  const filterBooksForQuery = useCallback((collection, filters = {}) => {
-    const shelves = Array.isArray(filters.shelves) ? filters.shelves : [];
-    const subjects = Array.isArray(filters.subjects) ? filters.subjects : [];
-    const minRating =
-      typeof filters.minRating === 'number' && Number.isFinite(filters.minRating)
-        ? filters.minRating
-        : null;
-
-    return collection.filter((book) => {
-      if (shelves.length > 0 && !shelves.includes(book.shelf)) {
-        return false;
-      }
-      if (subjects.length > 0) {
-        const bookSubjects = Array.isArray(book.subjects) ? book.subjects : [];
-        const matchesSubject = bookSubjects.some((subject) => subjects.includes(subject));
-        if (!matchesSubject) {
-          return false;
-        }
-      }
-      if (minRating != null) {
-        const rating = typeof book.activity?.averageRating === 'number' ? book.activity.averageRating : null;
-        if (!(rating != null && rating >= minRating)) {
-          return false;
-        }
-      }
-      return true;
-    });
-  }, []);
-
   const generateSuggestion = useCallback(async (query, candidates, index) => {
     if (!Array.isArray(candidates) || candidates.length === 0) {
       throw new Error('No candidates available for suggestions.');
@@ -162,28 +96,6 @@ export default function HomePage() {
     await Promise.all([saveBooks(uploadedBooks), saveSyncState(syncInfo ?? null)]);
   };
 
-  const handleSimilarSearch = (book) => {
-    if (!book?.embedding) {
-      return;
-    }
-
-    const neighbors = books
-      .filter((candidate) => candidate.id !== book.id)
-      .map((candidate) => ({
-        ...candidate,
-        similarity: cosineSimilarity(book.embedding, candidate.embedding)
-      }))
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, SIMILAR_BOOK_LIMIT);
-
-    setSearchState({
-      type: 'similar',
-      source: book,
-      neighbors
-    });
-    setActiveView('search');
-  };
-
   const handleConceptSearch = async (searchRequest) => {
     if (!canSearch) {
       throw new Error('Sync your Bookwyrm library before running a search.');
@@ -191,7 +103,7 @@ export default function HomePage() {
 
     const request =
       typeof searchRequest === 'string'
-        ? { query: searchRequest, mode: 'list', filters: {} }
+        ? { query: searchRequest, mode: 'list' }
         : searchRequest ?? {};
 
     const query = typeof request.query === 'string' ? request.query.trim() : '';
@@ -200,15 +112,14 @@ export default function HomePage() {
     }
 
     const mode = request.mode === 'single' ? 'single' : 'list';
-    const activeFilters = request.filters ?? {};
 
     setSearching(true);
     try {
       const [embedding] = await fetchEmbeddings([query]);
-      const filteredCollection = filterBooksForQuery(books, activeFilters);
+      const filteredCollection = books.filter((book) => Array.isArray(book.embedding));
 
       if (filteredCollection.length === 0) {
-        throw new Error('No books matched the selected filters.');
+        throw new Error('No books in your library are ready for semantic search.');
       }
 
       const ranked = filteredCollection
@@ -229,16 +140,14 @@ export default function HomePage() {
           query,
           candidates,
           currentIndex: suggestion.index,
-          suggestion,
-          filters: activeFilters
+          suggestion
         });
       } else {
         const results = ranked.slice(0, CONCEPT_RESULTS_LIMIT);
         setSearchState({
           type: 'concept',
           results,
-          query,
-          filters: activeFilters
+          query
         });
       }
       setActiveView('search');
@@ -348,20 +257,13 @@ export default function HomePage() {
           />
         )}
 
-        {!initializing && activeView === 'books' && canSearch && (
-          <BookList books={books} onSelectBook={handleSimilarSearch} />
-        )}
+        {!initializing && activeView === 'books' && canSearch && <BookList books={books} />}
 
         {!initializing && activeView === 'search' && (
           <>
-            <Search
-              onSearch={handleConceptSearch}
-              searching={searching}
-              filters={filterOptions}
-            />
+            <Search onSearch={handleConceptSearch} searching={searching} />
             <SearchResults
               state={searchState}
-              onSelectBook={handleSimilarSearch}
               onSuggestionFeedback={handleSuggestionFeedback}
               onRequestAnother={handleSuggestionReroll}
               searching={searching}

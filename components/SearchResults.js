@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react';
 import { BookItem } from '@/components/BookItem';
 
 const INITIAL_DISPLAY_COUNT = 3;
-const LOAD_MORE_COUNT = 2;
+const LOAD_MORE_COUNT = 3;
 
 export function SearchResults({
   state,
-  onSelectBook,
   onSuggestionFeedback,
   onRequestAnother,
   searching
@@ -41,9 +40,9 @@ export function SearchResults({
               <BookItem
                 key={book.id}
                 book={book}
-                onClick={onSelectBook}
                 query={state.query}
                 mode="concept"
+                spotlight
               />
             )}
 
@@ -83,27 +82,18 @@ export function SearchResults({
     );
   }
 
-  const isSimilarSearch = state.type === 'similar';
-  const results = isSimilarSearch ? state.neighbors : state.results;
-  const query = isSimilarSearch
-    ? `books similar to "${state.source.title}"`
-    : state.query;
+  const results = state.results;
+  const query = state.query;
 
   return (
     <div className="search-results">
-      {isSimilarSearch ? (
-        <div className="detail-header">
-          <h2>Books Similar to &ldquo;{state.source.title}&rdquo;</h2>
-          <p>Based on semantic similarity across your library</p>
-        </div>
-      ) : (
-        <div className="concept-header">
-          <h2>Search Results</h2>
-          <p>
-            Showing {Math.min(displayCount, results.length)} of {results.length} matching books
-          </p>
-        </div>
-      )}
+      <div className="concept-header">
+        <h2>Matching Books</h2>
+        <p>
+          Showing {Math.min(displayCount, results.length)} of {results.length} books that resonate
+          with &ldquo;{query}&rdquo;
+        </p>
+      </div>
 
       <div className="results-list">
         {results.length > 0 ? (
@@ -111,9 +101,8 @@ export function SearchResults({
             <BookItem
               key={book.id}
               book={book}
-              onClick={onSelectBook}
               query={query}
-              mode={isSimilarSearch ? 'similar' : 'concept'}
+              mode="concept"
             />
           ))
         ) : (

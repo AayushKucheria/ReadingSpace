@@ -23,7 +23,7 @@ function sortBooks(books, sortBy) {
   return sorted;
 }
 
-export function BookList({ books, onSelectBook }) {
+export function BookList({ books }) {
   const [sortBy, setSortBy] = useState('title');
   const [filterText, setFilterText] = useState('');
   const [page, setPage] = useState(1);
@@ -85,9 +85,7 @@ export function BookList({ books, onSelectBook }) {
 
       <div className="books-container">
         {currentBooks.length > 0 ? (
-          currentBooks.map((book) => (
-            <BookItem key={book.id} book={book} onClick={onSelectBook} />
-          ))
+          currentBooks.map((book) => <BookItem key={book.id} book={book} />)
         ) : (
           <div className="no-books">
             {filterText ? 'No books match your filter.' : 'No books available.'}

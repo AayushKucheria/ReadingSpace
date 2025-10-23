@@ -1,215 +1,108 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-const RATING_THRESHOLDS = [4.5, 4.0, 3.5];
+const EXAMPLE_PROMPTS = [
+  'I want something tender yet unsettling that wrestles with memory.',
+  'Give me a book to reset my attention and feel grounded again.',
+  'What should I read to stay curious about the natural world?',
+  'I need a hopeful story that still acknowledges hard realities.'
+];
 
-export function Search({ onSearch, searching, filters = {} }) {
-  const [searchText, setSearchText] = useState('');
+export function Search({ onSearch, searching }) {
+  const [prompt, setPrompt] = useState('');
   const [error, setError] = useState(null);
-  const [mode, setMode] = useState('list');
-  const [selectedShelves, setSelectedShelves] = useState([]);
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const [minRating, setMinRating] = useState('any');
 
-  useEffect(() => {
-    if (!Array.isArray(filters.shelves)) {
-      return;
-    }
-    setSelectedShelves((current) =>
-      current.filter((slug) => filters.shelves.some((shelf) => shelf.slug === slug))
-    );
-  }, [filters.shelves]);
+  const trimmedPrompt = prompt.trim();
+  const actionsDisabled = searching || trimmedPrompt.length === 0;
 
-  useEffect(() => {
-    if (!Array.isArray(filters.subjects)) {
-      return;
-    }
-    setSelectedSubjects((current) => current.filter((subject) => filters.subjects.includes(subject)));
-  }, [filters.subjects]);
-
-  const toggleShelf = (slug) => {
-    setSelectedShelves((current) => {
-      if (current.includes(slug)) {
-        return current.filter((value) => value !== slug);
+  const runSearch = useCallback(
+    async (mode) => {
+      const query = prompt.trim();
+      if (!query) {
+        setError('Let the app know what is on your mind.');
+        return;
       }
-      return [...current, slug];
-    });
-  };
 
-  const toggleSubject = (subject) => {
-    setSelectedSubjects((current) => {
-      if (current.includes(subject)) {
-        return current.filter((value) => value !== subject);
+      setError(null);
+
+      try {
+        await onSearch({ query, mode, filters: {} });
+        const url = new URL(window.location.href);
+        url.searchParams.set('q', query);
+        url.searchParams.set('mode', mode);
+        window.history.replaceState({}, '', url);
+      } catch (searchError) {
+        setError(searchError.message ?? 'Something went wrong. Try again.');
       }
-      return [...current, subject];
-    });
-  };
+    },
+    [onSearch, prompt]
+  );
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!searchText.trim()) {
-      setError('Please enter a search query.');
-      return;
-    }
-
+  const applyExample = useCallback((example) => {
+    setPrompt(example);
     setError(null);
-    try {
-      await onSearch({
-        query: searchText,
-        mode,
-        filters: {
-          shelves: selectedShelves,
-          subjects: selectedSubjects,
-          minRating: minRating === 'any' ? null : Number(minRating)
-        }
-      });
-      const url = new URL(window.location.href);
-      url.searchParams.set('q', searchText);
-      url.searchParams.set('mode', mode);
-      window.history.replaceState({}, '', url);
-    } catch (searchError) {
-      setError(searchError.message ?? 'Search failed. Please try again.');
-    }
-  };
-
-  const applyExample = (example) => {
-    setSearchText(example);
-    setError(null);
-  };
+  }, []);
 
   return (
-    <div className="search-container">
-      <h2>Discover Books Through Ideas</h2>
+    <section className="context-search">
+      <div className="context-shell">
+        <header className="context-header">
+          <p className="eyebrow">Context-first</p>
+          <h2>What do you feel like reading?</h2>
+          <p className="subtitle">
+            Free-write a few lines about your mood, the themes you want to explore, or where
+            you are right now. The system will translate that energy into a book from your library.
+          </p>
+        </header>
 
-      <div className="search-description">
-        <p>
-          Explore your library with natural language. Describe any concept, theme, or emotion,
-          and semantic search will find matching books—even if they never mention those exact
-          words.
-        </p>
-      </div>
-
-      <form className="search-form" onSubmit={handleSubmit}>
-        <div className="search-primary">
-          <input
-            type="text"
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-            placeholder="What kind of story are you looking for today?"
+        <div className="context-input">
+          <textarea
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            placeholder="Pour out the atmosphere you want. Mention textures, emotions, memories—whatever feels true."
             disabled={searching}
+            rows={8}
           />
+        </div>
 
-          <button type="submit" disabled={searching || !searchText.trim()}>
-            {searching ? 'Searching…' : 'Search'}
+        {error && <div className="context-error">{error}</div>}
+
+        <div className="context-actions">
+          <button
+            type="button"
+            className="primary"
+            onClick={() => runSearch('single')}
+            disabled={actionsDisabled}
+          >
+            {searching ? 'Listening…' : 'Bring me one book'}
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => runSearch('list')}
+            disabled={actionsDisabled}
+          >
+            {searching ? 'Searching…' : 'Show matching stack'}
           </button>
         </div>
-
-        <fieldset className="search-mode-toggle">
-          <legend>Recommendation mode</legend>
-          <label>
-            <input
-              type="radio"
-              name="search-mode"
-              value="list"
-              checked={mode === 'list'}
-              onChange={() => setMode('list')}
-              disabled={searching}
-            />
-            Full results
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="search-mode"
-              value="single"
-              checked={mode === 'single'}
-              onChange={() => setMode('single')}
-              disabled={searching}
-            />
-            Single strong suggestion
-          </label>
-        </fieldset>
-
-        {Array.isArray(filters.shelves) && filters.shelves.length > 0 && (
-          <fieldset className="search-filter-group">
-            <legend>Filter by shelf</legend>
-            <div className="filter-options">
-              {filters.shelves.map((shelf) => (
-                <label key={shelf.slug}>
-                  <input
-                    type="checkbox"
-                    checked={selectedShelves.includes(shelf.slug)}
-                    onChange={() => toggleShelf(shelf.slug)}
-                    disabled={searching}
-                  />
-                  <span>{shelf.label}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        )}
-
-        {Array.isArray(filters.subjects) && filters.subjects.length > 0 && (
-          <fieldset className="search-filter-group">
-            <legend>Subjects to include</legend>
-            <div className="filter-options">
-              {filters.subjects.map((subject) => (
-                <label key={subject}>
-                  <input
-                    type="checkbox"
-                    checked={selectedSubjects.includes(subject)}
-                    onChange={() => toggleSubject(subject)}
-                    disabled={searching}
-                  />
-                  <span>{subject}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        )}
-
-        <div className="rating-filter">
-          <label htmlFor="min-rating">Minimum personal rating</label>
-          <select
-            id="min-rating"
-            value={minRating}
-            onChange={(event) => setMinRating(event.target.value)}
-            disabled={searching}
-          >
-            <option value="any">Any rating</option>
-            {RATING_THRESHOLDS.map((threshold) => (
-              <option key={threshold} value={threshold}>
-                {threshold}+ stars
-              </option>
-            ))}
-          </select>
-        </div>
-      </form>
-
-      {error && <div className="search-error">{error}</div>}
-
-      <div className="search-examples">
-        <h3>Try searching for:</h3>
-        <ul>
-          <li onClick={() => applyExample('books about personal growth and overcoming adversity')}>
-            Personal growth and overcoming adversity
-          </li>
-          <li onClick={() => applyExample('magical realism with historical elements')}>
-            Magical realism with historical elements
-          </li>
-          <li onClick={() => applyExample('detective stories with unreliable narrators')}>
-            Detective stories with unreliable narrators
-          </li>
-          <li onClick={() => applyExample('books that made me feel hopeful')}>
-            Books that make me feel hopeful
-          </li>
-          <li onClick={() => applyExample('dystopian futures with philosophical themes')}>
-            Dystopian futures with philosophical themes
-          </li>
-        </ul>
       </div>
-    </div>
+
+      <div className="context-examples">
+        <p className="examples-label">Need a spark?</p>
+        <div className="examples-list">
+          {EXAMPLE_PROMPTS.map((example) => (
+            <button
+              key={example}
+              type="button"
+              onClick={() => applyExample(example)}
+              disabled={searching}
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
