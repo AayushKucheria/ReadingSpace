@@ -307,7 +307,7 @@ export default function HomePage() {
               onRequestAnother={handleSuggestionReroll}
               searching={searching}
             />
-          </>
+          </div>
         )}
       </main>
     </div>
