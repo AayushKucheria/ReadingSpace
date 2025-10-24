@@ -199,7 +199,7 @@ export default function HomePage() {
         }
       };
     });
-  }, [books, canSearch, ensureApiKey, generateSuggestion]);
+  }, []);
 
   const handleSuggestionReroll = useCallback(async () => {
     if (!searchState || searchState.type !== 'single') {
