@@ -4,14 +4,12 @@ import OpenAI from 'openai';
 const MODEL = process.env.OPENAI_EMBEDDING_MODEL ?? 'text-embedding-3-small';
 const CHUNK_SIZE = Number.parseInt(process.env.EMBED_BATCH_SIZE ?? '32', 10);
 
-function getClient() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      'OPENAI_API_KEY is not configured. Add it to your environment variables.'
-    );
+function getClient(apiKey) {
+  const sanitized = typeof apiKey === 'string' ? apiKey.trim() : '';
+  if (!sanitized) {
+    throw new Error('OpenAI API key is required.');
   }
-  return new OpenAI({ apiKey });
+  return new OpenAI({ apiKey: sanitized });
 }
 
 async function createEmbeddings(client, inputs) {
@@ -44,11 +42,19 @@ export async function POST(request) {
     );
   }
 
-  const { inputs } = payload ?? {};
+  const { inputs, apiKey } = payload ?? {};
 
   if (!inputs || !Array.isArray(inputs) || inputs.length === 0) {
     return NextResponse.json(
       { error: 'Request body must include a non-empty "inputs" array.' },
+      { status: 400 }
+    );
+  }
+
+  const sanitizedKey = typeof apiKey === 'string' ? apiKey.trim() : '';
+  if (!sanitizedKey) {
+    return NextResponse.json(
+      { error: 'Request body must include an "apiKey" string.' },
       { status: 400 }
     );
   }
@@ -67,9 +73,9 @@ export async function POST(request) {
 
   let client;
   try {
-    client = getClient();
+    client = getClient(sanitizedKey);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
   try {

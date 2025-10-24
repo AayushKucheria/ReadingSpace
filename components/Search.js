@@ -11,7 +11,7 @@ const EXAMPLE_PROMPTS = [
   'My shelves need a voice that will let me stay curious without losing the sense of play that got me reading in the first place.'
 ];
 
-export function Search({ onSearch, searching, centered = true }) {
+export function Search({ onSearch, searching, ensureApiKey }) {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState(null);
 
@@ -26,6 +26,17 @@ export function Search({ onSearch, searching, centered = true }) {
         return;
       }
 
+      if (ensureApiKey) {
+        try {
+          ensureApiKey();
+        } catch (keyError) {
+          setError(
+            keyError?.message ?? 'Add your OpenAI API key in Settings before searching.'
+          );
+          return;
+        }
+      }
+
       setError(null);
 
       try {
@@ -38,7 +49,7 @@ export function Search({ onSearch, searching, centered = true }) {
         setError(searchError.message ?? 'Something went wrong. Try again.');
       }
     },
-    [onSearch, prompt]
+    [ensureApiKey, onSearch, prompt]
   );
 
   const applyExample = useCallback((example) => {

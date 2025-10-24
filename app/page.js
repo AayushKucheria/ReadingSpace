@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BookList } from '@/components/BookList';
 import { LibrarySync } from '@/components/LibrarySync';
+import { OpenAiSettings } from '@/components/OpenAiSettings';
 import { Search } from '@/components/Search';
 import { SearchResults } from '@/components/SearchResults';
 import { fetchEmbeddings, requestRecommendationSummary } from '@/lib/api';
@@ -11,6 +12,7 @@ import {
   clearBooks,
   clearSyncState,
   loadBooks,
+  loadOpenAiKey,
   loadSyncState,
   saveBooks,
   saveSyncState
@@ -26,13 +28,27 @@ export default function HomePage() {
   const [initializing, setInitializing] = useState(true);
   const [searching, setSearching] = useState(false);
   const [syncState, setSyncState] = useState(null);
+  const [openAiKey, setOpenAiKey] = useState(null);
+
+  const updateOpenAiKey = useCallback((nextKey) => {
+    if (typeof nextKey === 'string') {
+      const trimmed = nextKey.trim();
+      setOpenAiKey(trimmed.length > 0 ? trimmed : null);
+      return;
+    }
+    setOpenAiKey(null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
 
     async function hydrate() {
       try {
-        const [storedBooks, storedSync] = await Promise.all([loadBooks(), loadSyncState()]);
+        const [storedBooks, storedSync, storedKey] = await Promise.all([
+          loadBooks(),
+          loadSyncState(),
+          loadOpenAiKey()
+        ]);
 
         if (!cancelled && Array.isArray(storedBooks) && storedBooks.length > 0) {
           setBooks(storedBooks);
@@ -41,6 +57,10 @@ export default function HomePage() {
 
         if (!cancelled && storedSync) {
           setSyncState(storedSync);
+        }
+
+        if (!cancelled) {
+          updateOpenAiKey(storedKey ?? null);
         }
       } finally {
         if (!cancelled) {
@@ -53,9 +73,17 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [updateOpenAiKey]);
 
   const canSearch = useMemo(() => books.length > 0, [books.length]);
+  const ensureApiKey = useCallback(() => {
+    const trimmed = typeof openAiKey === 'string' ? openAiKey.trim() : '';
+    if (!trimmed) {
+      throw new Error('Add your OpenAI API key in Settings before searching.');
+    }
+    return trimmed;
+  }, [openAiKey]);
+
   const generateSuggestion = useCallback(async (query, candidates, index) => {
     if (!Array.isArray(candidates) || candidates.length === 0) {
       throw new Error('No candidates available for suggestions.');
@@ -78,14 +106,15 @@ export default function HomePage() {
       }
     };
 
-    const response = await requestRecommendationSummary(payload);
+    const apiKey = ensureApiKey();
+    const response = await requestRecommendationSummary(payload, apiKey);
     return {
       index: boundedIndex,
       book: candidate,
       summary: response.summary,
       feedback: null
     };
-  }, []);
+  }, [ensureApiKey]);
 
   const handleLibraryImported = async ({ books: uploadedBooks, syncInfo }) => {
     setBooks(uploadedBooks);
@@ -115,7 +144,8 @@ export default function HomePage() {
 
     setSearching(true);
     try {
-      const [embedding] = await fetchEmbeddings([query]);
+      const apiKey = ensureApiKey();
+      const [embedding] = await fetchEmbeddings([query], apiKey);
       const filteredCollection = books.filter((book) => Array.isArray(book.embedding));
 
       if (filteredCollection.length === 0) {
@@ -249,22 +279,27 @@ export default function HomePage() {
       <main className="app-content">
         {initializing && <div className="loading">Loading your library…</div>}
 
+        {!initializing && (
+          <OpenAiSettings apiKey={openAiKey} onApiKeyChange={updateOpenAiKey} />
+        )}
+
         {!initializing && activeView === 'sync' && (
           <LibrarySync
             onLibraryImported={handleLibraryImported}
             existingBooks={books}
             syncState={syncState}
+            ensureApiKey={ensureApiKey}
           />
         )}
 
         {!initializing && activeView === 'books' && canSearch && <BookList books={books} />}
 
         {!initializing && activeView === 'search' && (
-          <div className="search-layout">
+          <>
             <Search
               onSearch={handleConceptSearch}
               searching={searching}
-              centered={false}
+              ensureApiKey={ensureApiKey}
             />
             <SearchResults
               state={searchState}
@@ -272,7 +307,7 @@ export default function HomePage() {
               onRequestAnother={handleSuggestionReroll}
               searching={searching}
             />
-          </div>
+          </>
         )}
       </main>
     </div>
