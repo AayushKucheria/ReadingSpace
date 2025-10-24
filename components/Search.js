@@ -11,7 +11,7 @@ const EXAMPLE_PROMPTS = [
   'My shelves need a voice that will let me stay curious without losing the sense of play that got me reading in the first place.'
 ];
 
-export function Search({ onSearch, searching, ensureApiKey }) {
+export function Search({ onSearch, searching, ensureApiKey, centered = false }) {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState(null);
 
